@@ -1,37 +1,406 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Message</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Convertisseur de devises Pro</title>
   <style>
     body {
-      background-color: #222;
-      color: #fff;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background: #f0f2f5;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #222;
     }
-    .message {
-      font-size: 2.5rem;
+    header {
+      background-color: #1a73e8;
+      color: white;
+      padding: 20px 10px;
       text-align: center;
-      font-weight: bold;
-      text-transform: uppercase;
-      color: #ff6347; /* Rouge vif */
-      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
-      padding: 20px;
-      border: 3px solid #ff6347;
-      border-radius: 15px;
-      background-color: rgba(0, 0, 0, 0.5);
+      font-size: 1.8rem;
+      font-weight: 700;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    main {
+      flex: 1;
+      max-width: 600px;
+      margin: 40px auto 90px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 30px 25px;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    select, input[type=number] {
+      width: 100%;
+      padding: 12px 15px;
+      margin-top: 8px;
+      border: 2px solid #ddd;
+      border-radius: 7px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    select:focus, input[type=number]:focus {
+      outline: none;
+      border-color: #1a73e8;
+      box-shadow: 0 0 5px #1a73e8;
+    }
+    button {
+      margin-top: 30px;
+      background-color: #1a73e8;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 14px;
+      border: none;
+      border-radius: 9px;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #155ab6;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 40px;
+      color: #111;
+    }
+    footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background-color: #222;
+      padding: 12px 0;
+      text-align: center;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.4);
+    }
+    footer a img {
+      max-height: 80px;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+      vertical-align: middle;
+    }
+    footer a img:hover {
+      transform: scale(1.05);
+    }
+    @media (max-width: 640px) {
+      main {
+        margin: 20px 10px 110px;
+        padding: 20px;
+      }
+      header {
+        font-size: 1.4rem;
+        padding: 15px 10px;
+      }
+      button {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="message">
-    OU MENM BÈNO TOUT FANM OU BANM NUMERO YO, YO TOUT LÈD 🖕
-  </div>
+
+<header>Convertisseur de Devises Pro</header>
+
+<main>
+  <form id="currency-form">
+    <label for="amount">Montant :</label>
+    <input type="number" id="amount" placeholder="Entrez un montant" required step="any" min="0" />
+
+    <label for="fromCurrency">De :</label>
+    <select id="fromCurrency" required>
+      <option value="" disabled selected>Choisissez la devise de départ</option>
+    </select>
+
+    <label for="toCurrency">À :</label>
+    <select id="toCurrency" required>
+      <option value="" disabled selected>Choisissez la devise cible</option>
+    </select>
+
+    <button type="submit">Convertir</button>
+  </form>
+
+  <div id="result"></div>
+</main>
+
+<footer>
+<footer>
+  <a href="https://sites.google.com/view/designerhere/home" target="_blank" rel="noopener noreferrer">
+    <img src="https://i.ibb.co/xKG6967W/file-00000000b4a061f78050c307b1232de4.png" alt="Publicité" />
+  </a>
+</footer>
+  </a>
+</footer>
+
+<script>
+  // Liste de plus de 100 devises ISO + noms
+  // Les taux sont fictifs, basés sur USD = 1, à mettre à jour selon besoin
+  const currencies = {
+    "USD": "Dollar américain",
+    "EUR": "Euro",
+    "JPY": "Yen japonais",
+    "GBP": "Livre sterling",
+    "AUD": "Dollar australien",
+    "CAD": "Dollar canadien",
+    "CHF": "Franc suisse",
+    "CNY": "Yuan chinois",
+    "SEK": "Couronne suédoise",
+    "NZD": "Dollar néo-zélandais",
+    "MXN": "Peso mexicain",
+    "SGD": "Dollar de Singapour",
+    "HKD": "Dollar de Hong Kong",
+    "NOK": "Couronne norvégienne",
+    "KRW": "Won sud-coréen",
+    "TRY": "Livre turque",
+    "INR": "Roupie indienne",
+    "RUB": "Rouble russe",
+    "BRL": "Real brésilien",
+    "ZAR": "Rand sud-africain",
+    "DKK": "Couronne danoise",
+    "PLN": "Zloty polonais",
+    "TWD": "Dollar taïwanais",
+    "THB": "Baht thaïlandais",
+    "MYR": "Ringgit malaisien",
+    "IDR": "Roupie indonésienne",
+    "CZK": "Couronne tchèque",
+    "ILS": "Nouveau shekel israélien",
+    "CLP": "Peso chilien",
+    "PHP": "Peso philippin",
+    "AED": "Dirham des Émirats arabes unis",
+    "COP": "Peso colombien",
+    "SAR": "Riyal saoudien",
+    "MYR": "Ringgit malaisien",
+    "RON": "Leu roumain",
+    "HUF": "Forint hongrois",
+    "BGN": "Lev bulgare",
+    "HRK": "Kuna croate",
+    "ISK": "Couronne islandaise",
+    "LVL": "Lat letton",
+    "LTL": "Litas lituanien",
+    "MUR": "Roupie mauricienne",
+    "PKR": "Roupie pakistanaise",
+    "QAR": "Riyal qatari",
+    "EGP": "Livre égyptienne",
+    "JOD": "Dinar jordanien",
+    "KES": "Shilling kényan",
+    "NGN": "Naira nigérian",
+    "TZS": "Shilling tanzanien",
+    "UGX": "Shilling ougandais",
+    "VND": "Dong vietnamien",
+    "XAF": "Franc CFA BEAC",
+    "XOF": "Franc CFA BCEAO",
+    "ZMW": "Kwacha zambien",
+    "MAD": "Dirham marocain",
+    "BHD": "Dinar bahreïni",
+    "OMR": "Rial omanais",
+    "LYD": "Dinar libyen",
+    "DZD": "Dinar algérien",
+    "TND": "Dinar tunisien",
+    "BDT": "Taka bangladais",
+    "LKR": "Roupie sri-lankaise",
+    "MMK": "Kyat birman",
+    "NPR": "Roupie népalaise",
+    "GHS": "Cedi ghanéen",
+    "CDF": "Franc congolais",
+    "SYP": "Livre syrienne",
+    "LBP": "Livre libanaise",
+    "BAM": "Mark convertible bosniaque",
+    "MKD": "Denar macédonien",
+    "ALL": "Lek albanais",
+    "AZN": "Manat azerbaïdjanais",
+    "BYN": "Rouble biélorusse",
+    "GEL": "Lari géorgien",
+    "MDL": "Leu moldave",
+    "UAH": "Hryvnia ukrainienne",
+    "AMD": "Dram arménien",
+    "KZT": "Tenge kazakh",
+    "UZS": "Sum ouzbek",
+    "TJS": "Somoni tadjik",
+    "MNT": "Tugrik mongol",
+    "BND": "Dollar brunéi",
+    "FJD": "Dollar fidjien",
+    "PGK": "Kina papou-néo-guinéen",
+    "SBD": "Dollar des îles Salomon",
+    "TOP": "Paʻanga tongien",
+    "WST": "Tala samoan",
+    "VUV": "Vatu vanuatais",
+    "XPF": "Franc CFP",
+    "XCD": "Dollar des Caraïbes orientales",
+    "KPW": "Won nord-coréen",
+    "SRD": "Dollar surinamais",
+    "MOP": "Pataca macanaise",
+    "BBD": "Dollar barbadien",
+    "BSD": "Dollar bahaméen",
+    "BZD": "Dollar bélizéen",
+    "GYD": "Dollar guyanien",
+    "HTG": "Gourde haïtienne",
+    "JMD": "Dollar jamaïcain",
+    "NAD": "Dollar namibien",
+    "TTD": "Dollar de Trinité-et-Tobago"
+  };
+
+  // Taux fixes fictifs (tous basés sur USD = 1)
+  const exchangeRates = {
+    "USD": 1,
+    "EUR": 0.92,
+    "JPY": 144.5,
+    "GBP": 0.80,
+    "AUD": 1.55,
+    "CAD": 1.34,
+    "CHF": 0.91,
+    "CNY": 7.15,
+    "SEK": 10.18,
+    "NZD": 1.67,
+    "MXN": 18.97,
+    "SGD": 1.36,
+    "HKD": 7.85,
+    "NOK": 10.48,
+    "KRW": 1327,
+    "TRY": 28.7,
+    "INR": 83.4,
+    "RUB": 98.2,
+    "BRL": 5.18,
+    "ZAR": 18.7,
+    "DKK": 6.84,
+    "PLN": 4.26,
+    "TWD": 30.8,
+    "THB": 36.8,
+    "MYR": 4.46,
+    "IDR": 15500,
+    "CZK": 23.3,
+    "ILS": 3.63,
+    "CLP": 833,
+    "PHP": 55.5,
+    "AED": 3.67,
+    "COP": 4570,
+    "SAR": 3.75,
+    "RON": 4.54,
+    "HUF": 356,
+    "BGN": 1.79,
+    "HRK": 7.00,
+    "ISK": 143,
+    "MUR": 45.5,
+    "PKR": 285,
+    "QAR": 3.64,
+    "EGP": 31.3,
+    "JOD": 0.71,
+    "KES": 134,
+    "NGN": 461,
+    "TZS": 2340,
+    "UGX": 3770,
+    "VND": 23800,
+    "XAF": 616,
+    "XOF": 615,
+    "ZMW": 19.8,
+    "MAD": 10.3,
+    "BHD": 0.38,
+    "OMR": 0.39,
+    "LYD": 4.85,
+    "DZD": 136,
+    "TND": 3.17,
+    "BDT": 108,
+    "LKR": 328,
+    "MMK": 2650,
+    "NPR": 130,
+    "GHS": 12.5,
+    "CDF": 2030,
+    "SYP": 2510,
+    "LBP": 15000,
+    "BAM": 1.82,
+    "MKD": 56.5,
+    "ALL": 112,
+    "AZN": 1.7,
+    "BYN": 2.51,
+    "GEL": 2.86,
+    "MDL": 19.9,
+    "UAH": 36.9,
+    "AMD": 393,
+    "KZT": 459,
+    "UZS": 11500,
+    "TJS": 11.5,
+    "MNT": 3450,
+    "BND": 1.36,
+    "FJD": 2.33,
+    "PGK": 3.5,
+    "SBD": 8.00,
+    "TOP": 2.45,
+    "WST": 2.66,
+    "VUV": 122,
+    "XPF": 109,
+    "XCD": 2.70,
+    "KPW": 900,
+    "SRD": 38,
+    "MOP": 8.00,
+    "BBD": 2,
+    "BSD": 1,
+    "BZD": 2,
+    "GYD": 209,
+    "HTG": 120,
+    "JMD": 153,
+    "NAD": 18.7,
+    "TTD": 6.8
+  };
+
+  // Remplir les selects avec les devises
+  const fromSelect = document.getElementById('fromCurrency');
+  const toSelect = document.getElementById('toCurrency');
+
+  function populateCurrencySelectors() {
+    for (const [code, name] of Object.entries(currencies)) {
+      const option1 = document.createElement('option');
+      option1.value = code;
+      option1.textContent = `${code} - ${name}`;
+      fromSelect.appendChild(option1);
+
+      const option2 = document.createElement('option');
+      option2.value = code;
+      option2.textContent = `${code} - ${name}`;
+      toSelect.appendChild(option2);
+    }
+  }
+
+  populateCurrencySelectors();
+
+  // Form submit handler
+  const form = document.getElementById('currency-form');
+  const resultDiv = document.getElementById('result');
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('amount').value);
+    const from = fromSelect.value;
+    const to = toSelect.value;
+
+    if (isNaN(amount) || amount < 0) {
+      resultDiv.textContent = 'Veuillez entrer un montant valide.';
+      return;
+    }
+    if (!from || !to) {
+      resultDiv.textContent = 'Veuillez sélectionner les deux devises.';
+      return;
+    }
+    if (!(from in exchangeRates) || !(to in exchangeRates)) {
+      resultDiv.textContent = 'Conversion non supportée pour cette devise.';
+      return;
+    }
+
+    // Conversion : montant en USD puis en devise cible
+    const amountInUSD = amount / exchangeRates[from];
+    const convertedAmount = amountInUSD * exchangeRates[to];
+
+    resultDiv.textContent = `${amount.toLocaleString(undefined, {maximumFractionDigits: 2})} ${from} = ${convertedAmount.toLocaleString(undefined, {maximumFractionDigits: 2})} ${to}`;
+  });
+</script>
+
 </body>
 </html>
